@@ -180,7 +180,7 @@ const adjacentNumbers = (line, char) => {
     const bottomCenter = isNumber(charArrays[line + 1][char]);
     const bottomRight = isNumber(charArrays[line + 1][char + 1]);
 
-    if (topLeft && topCenter && topRight || topLeft && topCenter || topCenter && topRight) {
+    if (topLeft && topCenter && topRight || topLeft && topCenter || topCenter && topRight || !topLeft && topCenter && !topRight) {
         directions.push([line - 1, char]);
     } else if (topLeft && !topCenter && topRight) {
         directions.push([line - 1, char - 1], [line - 1, char + 1]);
@@ -193,7 +193,7 @@ const adjacentNumbers = (line, char) => {
     if (left) directions.push([line, char - 1]);
     if (right) directions.push([line, char + 1]);
 
-    if (bottomLeft && bottomCenter && bottomRight || bottomLeft && bottomCenter || bottomCenter && bottomRight) {
+    if (bottomLeft && bottomCenter && bottomRight || bottomLeft && bottomCenter || bottomCenter && bottomRight || !bottomLeft && bottomCenter && !bottomRight) {
         directions.push([line + 1, char]);
     } else if (bottomLeft && !bottomCenter && bottomRight) {
         directions.push([line + 1, char - 1], [line + 1, char + 1]);
@@ -219,6 +219,8 @@ const getNumberFromArray = (line, char) => {
         number += charArrays[line][char + 1]
         if (isNumber(charArrays[line][char + 2])) number += charArrays[line][char + 2]
     }
+
+    // if (number.length > 3) { console.log(number, line, char)}
     return Number(number)
 }
 
