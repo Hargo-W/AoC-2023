@@ -192,6 +192,25 @@ let seeds = blocks[0].split(' ')
 seeds.shift()
 seeds = seeds.map(Number)
 
+const seedRanges = []
+
+for (let i = 0; i < seeds.length - 1; i++) {
+    seedRanges.push([seeds[i], seeds[i + 1]])
+}
+
+console.log(seedRanges)
+// const unpackedSeeds = [];
+//
+// for (let i = 0; i < seeds.length - 1; i++) {
+//     const rangeStart = seeds[i]
+//     const range = seeds[i + 1]
+//
+//     for (let y = 0; y < range; y++){
+//         unpackedSeeds.push(rangeStart + y)
+//     }
+//     i++
+// }
+
 const seedSoilMaps = blocks[1].split('\n')
 seedSoilMaps.shift()
 
@@ -245,4 +264,4 @@ for (const seed of seeds) {
     locValues.push(locValue)
 }
 
-console.log(Math.min(...locValues))
+// console.log(Math.min(...locValues))
