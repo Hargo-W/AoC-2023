@@ -1020,6 +1020,20 @@ const getType = (hand) => {
         }
     }
 
+    if (cards.includes('J')) {
+        let replaceWith= '';
+        let maxValue = 0;
+        for (const key in cardFrequencies) {
+            if (cardFrequencies[key] > maxValue && key !== 'J') {
+                maxValue = cardFrequencies[key]
+                replaceWith = key;
+            }
+        }
+
+        cardFrequencies[replaceWith] += cardFrequencies['J']
+        delete cardFrequencies['J']
+    }
+
     if (Object.keys(cardFrequencies).length === 1) return 'five'
     else if (Object.keys(cardFrequencies).length === 2) {
         if (Object.values(cardFrequencies)[0] === 1 || Object.values(cardFrequencies)[0] === 4) return 'four'
@@ -1049,7 +1063,7 @@ gameData.sort((a, b) => {
     if (priorityA > priorityB) return 1
     else if (priorityA < priorityB) return -1
     else {
-        const cardOrder = ['2', '3', '4', '5', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
+        const cardOrder = ['J', '2', '3', '4', '5', '4', '5', '6', '7', '8', '9', 'T', 'Q', 'K', 'A']
 
         const hand1 = a[0].split('')
         const hand2 = b[0].split('')
