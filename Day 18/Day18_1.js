@@ -663,7 +663,53 @@ D 3 (#65b733)
 L 4 (#2b4472)
 D 7 (#2350d3)
 L 9 (#1dbbd2)
-U 4 (#1ac8d3)`.split('\n').map(row => row.split(' '));
+U 4 (#1ac8d3)`.split('\n')
+
+// function updatePosition(position, direction, steps) {
+//     switch(direction) {
+//         case 'U': position[1] += steps; break;
+//         case 'D': position[1] -= steps; break;
+//         case 'R': position[0] += steps; break;
+//         case 'L': position[0] -= steps; break;
+//     }
+// }
+//
+// let border = 0;
+//
+// const getVertices = (input) => {
+//     let position = [0, 0];
+//     let vertices = [[...position]];
+//
+//     input.forEach(move => {
+//         const [direction, stepsStr] = move.split(' ');
+//         const steps = Number(stepsStr);
+//         border += steps
+//         updatePosition(position, direction, steps);
+//         vertices.push([...position]);
+//     });
+//
+//     return vertices;
+// }
+//
+// function shoelaceFormula(vertices) {
+//     let area = 0;
+//     const n = vertices.length;
+//
+//     for (let i = 0; i < n - 1; i++) {
+//         area += vertices[i][0] * vertices[i + 1][1] - vertices[i + 1][0] * vertices[i][1];
+//     }
+//     // for (let i = 0; i < n - 1; i++) {
+//     //     area += (vertices[i][0] + vertices[i + 1][0]) * (vertices[i + 1][1] - vertices[i][1]);
+//     // }
+//
+//     return Math.abs(area) / 2;
+// }
+//
+// const vertices = getVertices(input);
+// const area = shoelaceFormula(vertices);
+//
+// console.log(vertices)
+// console.log(area)
 
 let field = [['S']]
 let location = [0, 0]
@@ -699,79 +745,49 @@ const dig = (dir) => {
     field[location[0]][location[1]] = '#';
 }
 
-for (const line of input) {
-    for (let i = 0; i < Number(line[1]); i++) {
-        dig(line[0])
+for (let i = 0; i < input.length; i++) {
+    const [direction, steps] = input[i].split(' ')
+    for (let i = 0; i < Number(steps); i++) {
+        dig(direction)
     }
 }
 
-// const isSurrounded = (y, x) => {
-//     const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-//
-//     for (let [dy, dx] of directions) {
-//         let newY = y, newX = x;
-//
-//         while (true) {
-//             newY += dy;
-//             newX += dx;
-//
-//             if (newY < 0 || newY >= field.length || newX < 0 || newX >= field[0].length) {
-//                 return false;
-//             }
-//
-//             if (field[newY][newX] === '#') {
-//                 break;
-//             }
-//         }
-//     }
-//
-//     return true;
-// };
+const iterativeFloodFill = (grid, startX, startY, target, replacement) => {
+    let stack = [[startX, startY]];
 
-// for (let i = 0; i < field.length; i++) {
-//     for (let y = 0; y < field[0].length; y++) {
-//         if (field[i][y] === '.') {
-//             if (isSurrounded(i, y)) {
-//                 field[i][y] = '#'
-//             }
-//         }
-//     }
-// }
+    while (stack.length > 0) {
+        let [x, y] = stack.pop();
 
-// function floodFill(x, y) {
-//     if (x < 0 || x >= field.length || y < 0 || y >= field[0].length) {
-//         return;
-//     }
-//     if (field[x][y] !== '.') {
-//         return;
-//     }
-//
-//     field[x][y] = '#';
-//
-//
-//     floodFill(x - 1, y);
-//     floodFill(x + 1, y);
-//     floodFill(x, y - 1);
-//     floodFill(x, y + 1);
-// }
-//
-// let startingLoc = []
-//
-// for (const line of field) {
-//     for (const char of line) {
-//         if (char === 'S') startingLoc.push(line.indexOf(char), field.indexOf(line))
-//     }
-// }
-// floodFill(190, 140)
+        if (x < 0 || x >= grid.length || y < 0 || y >= grid[0].length) {
+            continue;
+        }
 
+        if (grid[x][y] !== target) {
+            continue;
+        }
+
+        grid[x][y] = replacement;
+
+        stack.push([x + 1, y]);
+        stack.push([x - 1, y]);
+        stack.push([x, y + 1]);
+        stack.push([x, y - 1]);
+    }
+}
+
+field.unshift(Array(field[0].length).fill('.'));
+field.push(Array(field[0].length).fill('.'));
+for (let i = 0; i < field.length; i++) {
+    field[i].unshift('.');
+    field[i].push('.');
+}
+
+iterativeFloodFill(field, 0, 0, '.', 'x');
 
 let total = 0;
 for (const line of field) {
     for (const char of line) {
-        if (char === '#') total++
+        if (char !== 'x') total++
     }
 }
-
-
 console.log(total)
-console.log(field)
