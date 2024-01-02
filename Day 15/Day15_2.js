@@ -53,7 +53,6 @@ for (let i = 0; i < boxes.length; i++) {
         const label = Object.keys(lens)[0];
         const focalLength = lens[label];
         const focusingPower = (1 + i) * (1 + y) * parseInt(focalLength, 10);
-        console.log(focusingPower);
         totalFocusingPower += focusingPower;
     }
 }

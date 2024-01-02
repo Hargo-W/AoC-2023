@@ -220,7 +220,6 @@ const getNumberFromArray = (line, char) => {
         if (isNumber(charArrays[line][char + 2])) number += charArrays[line][char + 2]
     }
 
-    // if (number.length > 3) { console.log(number, line, char)}
     return Number(number)
 }
 

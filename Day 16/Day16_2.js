@@ -118,7 +118,7 @@ for (let i = 0; i < field.length; i++) {
     field[i].push('x');
 }
 
-let energizedGrid = Array.from({ length: field.length }, () =>
+let energizedGrid = Array.from({length: field.length}, () =>
     Array(field[0].length).fill().map(() => []));
 
 const energize = (coords, direction) => {
@@ -126,7 +126,6 @@ const energize = (coords, direction) => {
         energizedGrid[coords[0]][coords[1]].push(direction);
     }
 }
-
 
 const getNextCoords = (location, direction) => {
     switch (direction) {
@@ -144,7 +143,6 @@ const getNextCoords = (location, direction) => {
 const moveTile = (location, direction) => {
     const currentTile = field[location[0]][location[1]];
     if (energizedGrid[location[0]][location[1]].includes(direction) || currentTile === 'x') return;
-
 
     energize(location, direction);
 
@@ -178,14 +176,81 @@ const moveTile = (location, direction) => {
     moveTile(nextCoords, nextDirection);
 }
 
-moveTile([1, 1], 'right')
+const chargedTileTotals = [];
 
-let total = 0;
+for (let i = 1; i < field[0].length; i++) {
+    moveTile([1, i], 'down')
 
-for (let i = 0; i < energizedGrid.length; i++) {
-    for (let y = 0; y < energizedGrid[0].length; y++) {
-        if (energizedGrid[i][y].length > 0) total++;
+
+    let total = 0;
+
+    for (let i = 0; i < energizedGrid.length; i++) {
+        for (let y = 0; y < energizedGrid[0].length; y++) {
+            if (energizedGrid[i][y].length > 0) total++;
+        }
     }
+
+    chargedTileTotals.push(total)
+
+    //reset grid
+    energizedGrid = energizedGrid = Array.from({length: field.length}, () =>
+        Array(field[0].length).fill().map(() => []));
 }
 
-console.log(total)
+for (let i = 1; i < field[0].length; i++) {
+    moveTile([field.length - 2, i], 'up')
+
+    let total = 0;
+
+    for (let i = 0; i < energizedGrid.length; i++) {
+        for (let y = 0; y < energizedGrid[0].length; y++) {
+            if (energizedGrid[i][y].length > 0) total++;
+        }
+    }
+
+    chargedTileTotals.push(total)
+
+    //reset grid
+    energizedGrid = energizedGrid = Array.from({length: field.length}, () =>
+        Array(field[0].length).fill().map(() => []));
+}
+
+for (let i = 1; i < field.length; i++) {
+    moveTile([i, 1], 'right')
+
+    let total = 0;
+
+    for (let i = 0; i < energizedGrid.length; i++) {
+        for (let y = 0; y < energizedGrid[0].length; y++) {
+            if (energizedGrid[i][y].length > 0) total++;
+        }
+    }
+
+    chargedTileTotals.push(total)
+
+    //reset grid
+    energizedGrid = energizedGrid = Array.from({length: field.length}, () =>
+        Array(field[0].length).fill().map(() => []));
+}
+
+for (let i = 1; i < field.length; i++) {
+    moveTile([field[1].length - 2, i], 'left')
+
+    let total = 0;
+
+    for (let i = 0; i < energizedGrid.length; i++) {
+        for (let y = 0; y < energizedGrid[0].length; y++) {
+            if (energizedGrid[i][y].length > 0) total++;
+        }
+    }
+
+    chargedTileTotals.push(total)
+
+    //reset grid
+    energizedGrid = energizedGrid = Array.from({length: field.length}, () =>
+        Array(field[0].length).fill().map(() => []));
+}
+
+const max = chargedTileTotals.reduce((a, b) => Math.max(a, b), -Infinity);
+
+console.log(max)
