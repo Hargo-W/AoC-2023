@@ -62,25 +62,29 @@ const extractModules = (input, symbol) => {
     return input.filter(line => line[0].startsWith(symbol)).map(line => ({
         name: line[0].replace(symbol, ''),
         destinations: line[1],
-        ...(symbol === '&' && { memory: createMemoryArray(input, line[0].replace(symbol, '')) })
+        ...(symbol === '&' && {memory: createMemoryArray(input, line[0].replace(symbol, ''))})
     }));
 }
 
 const createMemoryArray = (input, name) => {
     const memoryToAdd = input.filter(module => module[1].includes(name)).map(module => module[0].replace('&', '').replace('%', ''));
-    return memoryToAdd.map(mem => ({ name: mem, lastPulse: 'lp' }));
+    return memoryToAdd.map(mem => ({name: mem, lastPulse: 'lp'}));
 }
 
 const flipFlops = extractModules(input, '%');
 const conjunctions = extractModules(input, '&');
 
-let lowPulseCount = 0;
-let highPulseCount = 0;
 let queue = [];
 
 const sendPulse = (origin, destination, type) => {
-    type === 'lp' ? lowPulseCount++ : highPulseCount++;
     const isFlipFlop = flipFlops.some(ff => ff.name === destination);
+
+    // calculate the buttonpress cycles for dd, fh, xp, fc
+    if (type === 'hp' && origin === 'fc') {
+        console.log(buttonPressCount)
+        continueLoop = false;
+        return
+    }
 
     if (isFlipFlop && type === 'lp') {
         toggleFlipFlop(destination);
@@ -106,12 +110,15 @@ const updateConjunction = (origin, destination, type) => {
 }
 
 const broadCasterDestinations = input.find(line => line[0] === 'broadcaster')[1];
+
+let buttonPressCount = 0;
+let continueLoop = true;
 const pushButtonModule = () => {
-    lowPulseCount++;
+    buttonPressCount++
     broadCasterDestinations.forEach(destination => queue.push(['broadcaster', 'lp', destination]));
 }
 
-for (let i = 0; i < 1000; i++) {
+while (continueLoop) {
     pushButtonModule();
 
     while (queue.length) {
@@ -120,5 +127,4 @@ for (let i = 0; i < 1000; i++) {
     }
 }
 
-const total = lowPulseCount * highPulseCount;
-console.log(total);
+// dd - 4003, fh - 4027, fc - 3917, xp - 3919 get least common multiple -> 247454898168563
