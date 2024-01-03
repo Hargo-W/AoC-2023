@@ -770,7 +770,7 @@ mt{m<826:A,R}
 {x=880,m=412,a=2187,s=1720}`
 
 //prep
-let [workFlowLines, partLines] = input.split('\n\n').map(line => line.split('\n'))
+let [workFlowLines] = input.split('\n\n').map(line => line.split('\n'))
 
 const formatFlows = (workFlowString) => {
     let [name, rules] = workFlowString.split('{')
@@ -780,69 +780,102 @@ const formatFlows = (workFlowString) => {
 
 const workFlows = Object.fromEntries(workFlowLines.map(formatFlows));
 
-const convertPartToObject = (partString) => {
-    const values = partString.replace('{', '').replace('}', '').split(',');
-
-    let partObject = {};
-    values.forEach(value => {
-        const [key, val] = value.split('=');
-        partObject[key] = parseInt(val);
-    });
-
-    return partObject;
-}
-
-const parts = partLines.map(convertPartToObject);
-
 const accepted = []
 
 // execution
-const evaluateCondition = (condition, part) => {
-    const [attribute, operator, value] = condition.match(/(\w+)([<>=]+)(\d+)/).slice(1);
-    const expression = `${part[attribute]}${operator}${value}`;
-    return eval(expression);
+const conditionVRange = (condition, range) => {
+    const [attribute, operator, conditionValue] = condition.match(/(\w+)([<>])(\d+)/).slice(1);
+    const value = Number(conditionValue);
+
+    const attributeRange = range[attribute];
+    let includedRange = { ...range };
+
+    if (operator === '<') {
+        if (attributeRange[1] < value) {
+            return 'include';
+        } else if (attributeRange[0] >= value) {
+            return 'exclude';
+        } else {
+            includedRange[attribute] = [attributeRange[0], value - 1];
+            let excludedRange = { ...range };
+            excludedRange[attribute] = [value, attributeRange[1]];
+            return [includedRange, excludedRange];
+        }
+    } else if (operator === '>') {
+        if (attributeRange[0] > value) {
+            return 'include';
+        } else if (attributeRange[1] <= value) {
+            return 'exclude';
+        } else {
+            includedRange[attribute] = [value + 1, attributeRange[1]];
+            let excludedRange = { ...range };
+            excludedRange[attribute] = [attributeRange[0], value];
+            return [includedRange, excludedRange];
+        }
+    }
 }
 
-const runWorkFlow = (part, rules) => {
+const evaluateRanges = (range, rules) => {
     for (const rule of rules) {
         if (!rule.includes(':')) {
             if (rule === 'A') {
-                accepted.push(part)
-                break
+                accepted.push(range)
             } else if (rule === 'R') {
-                break
             } else {
                 const newRules = workFlows[rule]
-                runWorkFlow(part, newRules)
-                break
+                evaluateRanges(range, newRules)
             }
+            break
         } else {
             const [condition, destination] = rule.split(':')
-            if (evaluateCondition(condition, part)) {
+            const [included, excluded] = conditionVRange(condition, range)
+
+            if (included === 'include') {
                 if (destination === 'A') {
-                    accepted.push(part)
-                    break
+                    accepted.push(range)
                 } else if (destination === 'R') {
-                    break
                 } else {
                     const newRules = workFlows[destination]
-                    runWorkFlow(part, newRules)
-                    break
+                    evaluateRanges(range, newRules)
                 }
+                break
+            } else if (included === 'exclude') {
+
+            } else {
+                if (destination === 'A') {
+                    accepted.push(included)
+                } else if (destination === 'R') {
+                } else {
+                    const newRules = workFlows[destination]
+                    evaluateRanges(included, newRules)
+                }
+                range = excluded
             }
         }
     }
 }
 
+const ranges = {x: [1, 4000], m: [1, 4000], a: [1, 4000], s: [1, 4000]}
 const startRules = workFlows['in']
 
-for (const part of parts) {
-    runWorkFlow(part, startRules)
+evaluateRanges(ranges, startRules);
+
+const calculateSum = (data) => {
+    let totalSum = 0;
+
+    const countInRange = (range) => {
+        return range[1] - range[0] + 1;
+    }
+
+    data.forEach(obj => {
+        let product = 1;
+        for (let key in obj) {
+            product *= countInRange(obj[key]);
+        }
+        totalSum += product;
+    });
+
+    return totalSum;
 }
 
-
-let totalSum = accepted.reduce((sum, obj) => {
-    return sum + Object.values(obj).reduce((sum, val) => sum + val, 0);
-}, 0);
-
-console.log(totalSum);
+console.log(calculateSum(accepted))
