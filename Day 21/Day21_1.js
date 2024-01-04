@@ -140,7 +140,10 @@ for (let i = 0; i < input.length; i++) {
 let startingLocation;
 for (const line of input) {
     for (const char of line) {
-        if (char === 'S') startingLocation = [input.indexOf(line), line.indexOf(char)]
+        if (char === 'S') {
+            startingLocation = [input.indexOf(line), line.indexOf(char)]
+            input[input.indexOf(line)][line.indexOf(char)] = '.';
+        }
     }
 }
 
@@ -148,8 +151,6 @@ let currentLocations = [startingLocation];
 let possibleLocations = [];
 const simulateStep = (location) => {
     const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-
-    input[location[0]][location[1]] = '.';
 
     directions.forEach(direction => {
         const newRow = location[0] + direction[0];
